@@ -16,7 +16,7 @@
 		console = window.console||undefined, // Prevent a JSLint complain
 		document = window.document, // Make sure we are using the correct document
 		navigator = window.navigator, // Make sure we are using the correct navigator
-		sessionStorage = window.sessionStorage||false, // sessionStorage
+		sessionStorage = false, // sessionStorage
 		setTimeout = window.setTimeout,
 		clearTimeout = window.clearTimeout,
 		setInterval = window.setInterval,
@@ -29,6 +29,14 @@
 	// MooTools Compatibility
 	JSON.stringify = JSON.stringify||JSON.encode;
 	JSON.parse = JSON.parse||JSON.decode;
+
+	try {
+		sessionStorage = window.sessionStorage; // This will throw an exception in some browsers when cookies/localStorage are explicitly disabled (i.e. Chrome)
+		sessionStorage.setItem('TEST', '1');
+		sessionStorage.removeItem('TEST');
+	} catch(e) {
+		sessionStorage = false;
+	}
 
 	// Check Existence
 	if ( typeof History.init !== 'undefined' ) {
@@ -346,6 +354,37 @@
 			return newObj;
 		};
 
+		History.extendObject = function(obj, extension) {
+			for (var key in extension)
+			{
+				if (extension.hasOwnProperty(key))
+				{
+					obj[key] = extension[key];
+				}
+			}
+		};
+
+		History.setSessionStorageItem = function(key, value)
+		{
+			try
+			{
+				sessionStorage.setItem(key, value);
+			}
+			catch(e)
+			{
+				try
+				{
+					// hack: Workaround for a bug seen on iPads. Sometimes the quota exceeded error comes up and simply
+					// removing/resetting the storage can work.
+					sessionStorage.removeItem(key);
+					sessionStorage.setItem(key, value);
+				}
+				catch(e)
+				{
+					// no permissions or quota exceed
+				}
+			}
+		}
 
 		// ====================================================================
 		// URL Helpers
@@ -613,7 +652,7 @@
 			// Fetch ID
 			var id = History.extractId(newState.url),
 				str;
-			
+
 			if ( !id ) {
 				// Find ID via State String
 				str = History.getStateString(newState);
@@ -624,10 +663,17 @@
 					id = History.store.stateToId[str];
 				}
 				else {
+					id = sessionStorage ? sessionStorage.getItem('uniqId') : new Date().getTime();
+					if (id == undefined){
+						id = 0;
+					}
 					// Generate a new ID
 					while ( true ) {
-						id = (new Date()).getTime() + String(Math.random()).replace(/\D/g,'');
+						++id;
 						if ( typeof History.idToState[id] === 'undefined' && typeof History.store.idToState[id] === 'undefined' ) {
+							if (sessionStorage)	{
+								History.setSessionStorageItem('uniqId', id);
+							}
 							break;
 						}
 					}
@@ -1750,9 +1796,11 @@
 			 * @param {object} data
 			 * @param {string} title
 			 * @param {string} url
+			 * @param {object} queue
+			 * @param {boolean} createNewState
 			 * @return {true}
 			 */
-			History.replaceState = function(data,title,url,queue){
+			History.replaceState = function(data,title,url,queue,createNewState){
 				//History.debug('History.replaceState: called', arguments);
 
 				// Check the State
@@ -1777,7 +1825,19 @@
 				History.busy(true);
 
 				// Create the newState
-				var newState = History.createStateObject(data,title,url);
+				var newState;
+				if (createNewState)
+				{
+					data.rnd = new Date().getTime();
+					newState = History.createStateObject(data, title, url);
+				}
+				else
+				{
+					newState = History.getState();
+					newState.data = data;
+					History.idToState[newState.id] = newState;
+					History.extendObject(History.getLastSavedState(), newState);
+				}
 
 				// Check it
 				if ( History.isLastSavedState(newState) ) {
@@ -1885,7 +1945,7 @@
 				History.normalizeStore();
 
 				// Store
-				sessionStorage.setItem('History.store',JSON.stringify(currentStore));
+				History.setSessionStorageItem('History.store',JSON.stringify(currentStore));
 			};
 
 			// For Internet Explorer

@@ -460,7 +460,10 @@
 
 				// Push the new HTML5 State
 				//History.debug('History.onHashChange: success hashchange');
-				History.pushState(currentState.data,currentState.title,currentState.url,false);
+				//History.pushState(currentState.data,currentState.title,currentState.url,false);
+				History.saveState(currentState);
+				History.Adapter.trigger(window,'statechange');
+				History.busy(false);
 
 				// End onHashChange closure
 				return true;
@@ -550,9 +553,11 @@
 			 * @param {object} data
 			 * @param {string} title
 			 * @param {string} url
-			 * @return {true}
+			 * @param {object} queue
+			 * @param {boolean} createNewState
+			 * @return {boolean}
 			 */
-			History.replaceState = function(data,title,url,queue){
+			History.replaceState = function(data,title,url,queue,createNewState){
 				//History.debug('History.replaceState: called', arguments);
 
 				// Check the State
@@ -573,19 +578,33 @@
 					return false;
 				}
 
-				// Make Busy
-				History.busy(true);
-
-				// Fetch the State Objects
-				var newState        = History.createStateObject(data,title,url),
+				// Create the newState
+				var newState;
+				var oldState;
+				var previousState;
+				if (createNewState)
+				{
+					// Make Busy
+					History.busy(true);
+					data.rnd = new Date().getTime();
+					// Fetch the State Objects
+					newState        = History.createStateObject(data,title,url),
 					oldState        = History.getState(false),
 					previousState   = History.getStateByIndex(-2);
 
-				// Discard Old State
-				History.discardState(oldState,newState,previousState);
+					// Discard Old State
+					History.discardState(oldState,newState,previousState);
 
-				// Alias to PushState
-				History.pushState(newState.data,newState.title,newState.url,false);
+					// Alias to PushState
+					History.pushState(newState.data,newState.title,newState.url,false);
+				}
+				else
+				{
+					newState = History.getState();
+					newState.data = data;
+					History.idToState[newState.id] = newState;
+					History.extendObject(History.getLastSavedState(), newState);
+				}
 
 				// End replaceState closure
 				return true;
