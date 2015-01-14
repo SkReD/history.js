@@ -50,6 +50,7 @@ configs =
 
 			# Order
 			scriptsOrder: [
+				'../../vendor/lz-string.js'
 				'json2.js'
 				'history.adapter.jquery.js'
 				'history.html4.js'
@@ -72,6 +73,7 @@ configs =
 
 			# Order
 			scriptsOrder: [
+				'../../vendor/lz-string.js'
 				'history.adapter.jquery.js'
 				'history.js'
 			]
@@ -97,6 +99,7 @@ configs =
 
 			# Order
 			scriptsOrder: [
+				'../../vendor/lz-string.js'
 				'json2.js'
 				'history.adapter.mootools.js'
 				'history.html4.js'
@@ -119,6 +122,7 @@ configs =
 
 			# Order
 			scriptsOrder: [
+				'../../vendor/lz-string.js'
 				'history.adapter.mootools.js'
 				'history.js'
 			]
@@ -144,6 +148,7 @@ configs =
 
 			# Order
 			scriptsOrder: [
+				'../../vendor/lz-string.js'
 				'json2.js'
 				'history.adapter.native.js'
 				'history.html4.js'
@@ -166,6 +171,7 @@ configs =
 
 			# Order
 			scriptsOrder: [
+				'../../vendor/lz-string.js'
 				'history.adapter.native.js'
 				'history.js'
 			]
@@ -191,6 +197,7 @@ configs =
 
 			# Order
 			scriptsOrder: [
+				'../../vendor/lz-string.js'
 				'json2.js'
 				'history.adapter.right.js'
 				'history.html4.js'
@@ -213,6 +220,7 @@ configs =
 
 			# Order
 			scriptsOrder: [
+				'../../vendor/lz-string.js'
 				'history.adapter.right.js'
 				'history.js'
 			]
@@ -238,6 +246,7 @@ configs =
 
 			# Order
 			scriptsOrder: [
+				'../../vendor/lz-string.js'
 				'json2.js'
 				'history.adapter.zepto.js'
 				'history.html4.js'
@@ -260,6 +269,7 @@ configs =
 
 			# Order
 			scriptsOrder: [
+				'../../vendor/lz-string.js'
 				'history.adapter.zepto.js'
 				'history.js'
 			]

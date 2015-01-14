@@ -1872,7 +1872,7 @@
 		if ( sessionStorage ) {
 			// Fetch
 			try {
-				History.store = JSON.parse(sessionStorage.getItem('History.store'))||{};
+				History.store = JSON.parse(LZString.decompress(sessionStorage.getItem('History.store')))||{};
 			}
 			catch ( err ) {
 				History.store = {};
@@ -1909,7 +1909,7 @@
 
 				// Fetch
 				try {
-					currentStore = JSON.parse(sessionStorage.getItem('History.store'))||{};
+					currentStore = JSON.parse(LZString.decompress(sessionStorage.getItem('History.store')))||{};
 				}
 				catch ( err ) {
 					currentStore = {};
@@ -1945,7 +1945,7 @@
 				History.normalizeStore();
 
 				// Store
-				History.setSessionStorageItem('History.store',JSON.stringify(currentStore));
+				History.setSessionStorageItem('History.store', LZString.compress(JSON.stringify(currentStore)));
 			};
 
 			// For Internet Explorer
