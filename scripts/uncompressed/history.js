@@ -1927,6 +1927,7 @@
 					}
 					currentStore.idToState[item] = History.idToState[item];
 				}
+
 				for ( item in History.urlToId ) {
 					if ( !History.urlToId.hasOwnProperty(item) ) {
 						continue;
@@ -1938,6 +1939,49 @@
 						continue;
 					}
 					currentStore.stateToId[item] = History.stateToId[item];
+				}
+
+				var historyEntries = [];
+				var maxHistoryEntriesCount = 50;
+				//slice overweight entries
+				for ( item in currentStore.idToState ) {
+					if ( !currentStore.idToState.hasOwnProperty(item) ) {
+						continue;
+					}
+					currentStore.idToState[item].entryId = item;
+					historyEntries.push(currentStore.idToState[item]);
+				}
+
+				if (historyEntries.length > maxHistoryEntriesCount)
+				{
+					historyEntries.sort(function(e1, e2)
+					{
+						return e1.entryId - e2.entryId;
+					});
+
+					var excludedEntries = historyEntries.slice(0, historyEntries.length - maxHistoryEntriesCount);
+					for (var entryIndex = 0; entryIndex < excludedEntries.length; entryIndex++)
+					{
+						var entry = excludedEntries[entryIndex];
+						delete currentStore.idToState[entry.entryId];
+						for (var url in currentStore.urlToId )
+						{
+							if (currentStore.urlToId.hasOwnProperty(url) &&
+								currentStore.urlToId[url] == entry.entryId)
+							{
+								delete currentStore.urlToId[url];
+							}
+						}
+
+						for (var state in currentStore.stateToId )
+						{
+							if (currentStore.stateToId.hasOwnProperty(state) &&
+								currentStore.stateToId[state] == entry.entryId)
+							{
+								delete currentStore.stateToId[state];
+							}
+						}
+					}
 				}
 
 				// Update
