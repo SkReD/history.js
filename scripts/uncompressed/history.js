@@ -381,7 +381,21 @@
 				}
 				catch(e)
 				{
-					// no permissions or quota exceed
+					try
+					{
+						// no permissions or quota exceed
+						if (e.name === 'QuotaExceededError' ||
+							e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+						{
+
+							History.Adapter.trigger(window, 'storageQuotaExceed');
+							sessionStorage.setItem(key, value);
+						}
+					}
+					catch(e)
+					{
+
+					}
 				}
 			}
 		}
@@ -1981,6 +1995,8 @@
 								delete currentStore.stateToId[state];
 							}
 						}
+
+						History.Adapter.trigger(window, 'stateremove', { stateId: entry.entryId });
 					}
 				}
 
