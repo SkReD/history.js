@@ -1886,7 +1886,7 @@
 		if ( sessionStorage ) {
 			// Fetch
 			try {
-				History.store = JSON.parse(LZString.decompress(sessionStorage.getItem('History.store')))||{};
+				History.store = JSON.parse(/*LZString.decompress*/(sessionStorage.getItem('History.store')))||{};
 			}
 			catch ( err ) {
 				History.store = {};
@@ -1923,7 +1923,7 @@
 
 				// Fetch
 				try {
-					currentStore = JSON.parse(LZString.decompress(sessionStorage.getItem('History.store')))||{};
+					currentStore = JSON.parse(/*LZString.decompress*/(sessionStorage.getItem('History.store')))||{};
 				}
 				catch ( err ) {
 					currentStore = {};
@@ -1956,7 +1956,7 @@
 				}
 
 				var historyEntries = [];
-				var maxHistoryEntriesCount = 50;
+				var maxHistoryEntriesCount = 10;
 				//slice overweight entries
 				for ( item in currentStore.idToState ) {
 					if ( !currentStore.idToState.hasOwnProperty(item) ) {
@@ -2005,7 +2005,7 @@
 				History.normalizeStore();
 
 				// Store
-				History.setSessionStorageItem('History.store', LZString.compress(JSON.stringify(currentStore)));
+				History.setSessionStorageItem('History.store', /*LZString.compress*/(JSON.stringify(currentStore)));
 			};
 
 			// For Internet Explorer
