@@ -111,7 +111,7 @@
 		 * History.options.storeInterval
 		 * How long should we wait between store calls
 		 */
-		History.options.storeInterval = History.options.storeInterval || 1000;
+		History.options.storeInterval = History.options.storeInterval || 5000;
 
 		/**
 		 * History.options.busyDelay
@@ -665,6 +665,7 @@
 
 			// Fetch ID
 			var id = History.extractId(newState.url),
+				lastSavedState,
 				str;
 
 			if ( !id ) {
@@ -681,14 +682,30 @@
 					if (id == undefined){
 						id = 0;
 					}
-					// Generate a new ID
-					while ( true ) {
-						++id;
-						if ( typeof History.idToState[id] === 'undefined' && typeof History.store.idToState[id] === 'undefined' ) {
-							if (sessionStorage)	{
-								History.setSessionStorageItem('uniqId', id);
+
+					lastSavedState = History.getLastSavedState();
+					if (lastSavedState)
+					{
+						id = lastSavedState.id + 1;
+						if (sessionStorage)
+						{
+							History.setSessionStorageItem('uniqId', id);
+						}
+					}
+					else
+					{
+						// Generate a new ID
+						while (true)
+						{
+							++id;
+							if (typeof History.idToState[id] === 'undefined' && typeof History.store.idToState[id] === 'undefined')
+							{
+								if (sessionStorage)
+								{
+									History.setSessionStorageItem('uniqId', id);
+								}
+								break;
 							}
-							break;
 						}
 					}
 
@@ -1788,6 +1805,9 @@
 					History.busy(false);
 				}
 				else {
+					//remove previously stored state, because it can be and can be non empty
+					History.Adapter.trigger(window, 'stateremove', { stateId: newState.id });
+
 					// Store the newState
 					History.storeState(newState);
 					History.expectedStateId = newState.id;
